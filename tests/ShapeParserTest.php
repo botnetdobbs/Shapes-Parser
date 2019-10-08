@@ -5,73 +5,108 @@ use App\Container;
 
 final class ShapeParserTest extends TestCase
 {
-    // protected function setUp(): void
-    // {
-
-    // }
+    protected function setUp(): void
+    {
+        $this->container = new Container();
+    }
 
     public function testValidSquare()
     {
-        $this->assertTrue(true, "");
+        $this->assertEquals(true, $this->container->parse("[13]"));
     }
 
     public function testValidNestedSquares()
     {
-        $this->assertTrue(true, "");
+        $this->assertEquals(true, $this->container->parse("[13[29]]"));
+        $this->assertEquals(true, $this->container->parse("[13[29][89]]"));
     }
 
     public function testValidMultipleSquares()
     {
-        $this->assertTrue(true, "");
+        $this->assertEquals(true, $this->container->parse("[12][14]"));
+        $this->assertEquals(true, $this->container->parse("[12][14][18]"));
     }
 
     public function testValidCircle()
     {
-        $this->assertTrue(true, "");
+        $this->assertEquals(true, $this->container->parse("(CAT)"));
+        $this->assertEquals(true, $this->container->parse("(CONTAINER)"));
     }
 
     public function testValidCircleWithNestedSquare()
     {
-        $this->assertTrue(true, "");
+        $this->assertEquals(true, $this->container->parse("(CAT[15])"));
+        $this->assertEquals(true, $this->container->parse("(CAT[15][18][23])"));
     }
 
     public function testValidCircleWithNestedCircle()
     {
-        $this->assertTrue(true, "");
+        $this->assertEquals(true, $this->container->parse("(CAT(FOOD))"));
+        $this->assertEquals(true, $this->container->parse("(CAT(FOOD)(PLAY)(MEOW))"));
     }
 
     public function testValidCircleWithNestedCircleAndSquare()
     {
-        $this->assertTrue(true, "");
+        $this->assertEquals(true, $this->container->parse("(CAT(FOOD)[19])"));
+        $this->assertEquals(true, $this->container->parse("(CAT(FOOD)(MEOW)[19][9])"));
     }
 
     public function testInvalidInput()
     {
-        $this->assertTrue(true, "");
+        try {
+            $this->container->parse("$@#");
+        } catch (\Exception $e) {
+            return;
+        }
+         
+        $this->fail("Invalid input");
     }
 
     public function testMalformedInput()
     {
-        $this->assertTrue(true, "");
+        try {
+            $this->container->parse("[98)");
+        } catch (\Exception $e) {
+            return;
+        }
+         
+        $this->fail("Invalid input");
     }
 
     public function testNoTags()
     {
-        $this->assertTrue(true, "");
+        try {
+            $this->container->parse("HELLO");
+        } catch (\Exception $e) {
+            return;
+        }
+        $this->fail("Invalid input");
     }
 
     public function testInvalidInnerShapeCircleInSquare()
     {
-        $this->assertTrue(true, "");
+        $this->assertEquals(false, $this->container->parse("[89(HELLO]"));
     }
 
     public function testInvalidLabel()
     {
-        $this->assertTrue(true, "");
+        try {
+            $this->container->parse("[HELLO]");
+        } catch (\Exception $e) {
+            return;
+        }
+        $this->fail("Invalid label 'HELLO' for shape 'Square");
+
     }
 
     public function testNoLabel()
     {
-        $this->assertTrue(true, "");
+        try {
+            $this->container->parse("([])");
+        } catch (\Exception $e) {
+            return;
+        }
+        $this->fail("Invalid label '' for shape 'Circle'");
+        
     }
 }
